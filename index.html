@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>仓库管理工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+    
+        #repo-list {
+            list-style-type: none;
+            padding: 0;
+        }
+    
+        #repo-list li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>仓库管理工具</h1>
+    <div>
+        <h2>仓库列表</h2>
+        <ul id="repo-list">
+            <!-- 动态添加仓库链接 -->
+        </ul>
+    </div>
+    <div>
+        <input type="text" id="new-repo-url" placeholder="输入新仓库链接">
+        <button id="add-repo">添加仓库</button>
+        <button id="remove-repo">删除所选仓库</button>
+    </div>
+    <div>
+        <button id="install-repos">安装所选仓库</button>
+    </div>
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const addRepoButton = document.getElementById('add-repo');
+            const removeRepoButton = document.getElementById('remove-repo');
+            const installReposButton = document.getElementById('install-repos');
+            const newRepoUrl = document.getElementById('new-repo-url');
+            const repoList = document.getElementById('repo-list');
+
+            // 添加仓库到列表
+            function addRepoToList(url) {
+                const li = document.createElement('li');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = url;
+
+                li.appendChild(checkbox);
+                li.appendChild(document.createTextNode(url));
+                repoList.appendChild(li);
+            }
+
+            // 获取当前的仓库列表
+            function getReposList() {
+                const repos = [];
+                repoList.querySelectorAll('li').forEach(li => {
+                    repos.push(li.textContent.trim());
+                });
+                return repos;
+            }
+
+            // 添加仓库
+            addRepoButton.addEventListener('click', () => {
+                const url = newRepoUrl.value.trim();
+                if (url) {
+                    addRepoToList(url);
+                    newRepoUrl.value = ''; // 清空输入框
+                    ipcRenderer.send('update-repos', getReposList());
+                }
+            });
+
+            // 删除所选仓库
+            removeRepoButton.addEventListener('click', () => {
+                repoList.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                    checkbox.parentElement.remove();
+                });
+                ipcRenderer.send('update-repos', getReposList());
+            });
+
+            // 安装所选仓库
+            installReposButton.addEventListener('click', async () => {
+                const installDir = await ipcRenderer.invoke('select-dirs');
+                if (installDir) {
+                    const selectedRepos = [];
+                    repoList.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                        selectedRepos.push(checkbox.value);
+                    });
+                    if (selectedRepos.length > 0) {
+                        ipcRenderer.send('clone-repos', { repos: selectedRepos, directory: installDir });
+                    }
+                }
+            });
+
+            // 从主进程加载仓库
+            ipcRenderer.on('load-repos', (event, repos) => {
+                const repoList = document.getElementById('repo-list');
+                repos.forEach(repo => {
+                    const li = document.createElement('li');
+                    li.textContent = repo;
+                    repoList.appendChild(li);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
