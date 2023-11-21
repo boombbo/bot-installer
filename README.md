@@ -14,9 +14,9 @@ GitHub Repository Manager is a lightweight Electron app designed for easy manage
 
 ### Prerequisites
 
-Before you begin, ensure you have the following installed:
+Before you begin, ensure you have the following installed: 
 - [Node.js](https://nodejs.org/)
-- [Git](https://git-scm.com/)
+- [Git](https://git-scm.com/) 
 
 ### Installation
 
@@ -24,12 +24,12 @@ To get a local copy up and running, follow these simple steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/your-repo-name.git
+   git clone https://github.com/boombbo/bot-installer.git  
    ```
 
 2. Navigate to the project directory:
    ```bash
-   cd your-repo-name
+   cd bot-installer
    ```
 
 3. Install NPM packages:
@@ -37,10 +37,11 @@ To get a local copy up and running, follow these simple steps:
    npm install
    ```
 
-4. Start the application:
+4. Start the application: 
    ```bash
    npm start
    ```
+or click 
 
 ## Usage
 
